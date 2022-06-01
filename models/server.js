@@ -29,7 +29,7 @@ class Server{
     }
 
     start(){
-        this.app.listen(this.port,()=>{
+        this.app.listen(process.env.PORT || 5000,()=>{
             console.log(`Server on port ${this.port}`);
         });
     }
