@@ -7,7 +7,16 @@ class Server{
         this.app=express();
         this.port=3000;
 
+        this.server = require('http').Server(this.app);
+        this.io = require("socket.io")(this.server, {
+            cors: {
+              origin: "*",
+              methods: ["GET", "POST"]
+            }
+          });;
         this.connectDB();
+
+        this.listenSockets();
 
         this.middlewares();
         this.routes();
@@ -24,12 +33,39 @@ class Server{
         await dbConnection();
     }
 
+    listenSockets(){
+        this.io.on('connection',client=>{
+            const handshake=client.id;
+            //let {nameRoom}=client.handshake.query;
+            //console.log(client.handshake);
+            client.join('SALA X');
+            console.log('Cliente conectado: '+handshake);
+            
+            client.on('event',(data)=>{
+                //console.log(data);
+                client.to('SALA X').emit('event',data);
+            });
+
+            client.on('selectedPiece',(data)=>{
+                console.log(data);
+                client.to('SALA X').emit('selectedPiece',data);
+            });
+
+            client.on('disconnect',()=>{
+                console.log('Cliente desconectado');
+            });
+        });      
+    }
+
+
+
     routes(){
         this.app.use(require('../routes/puzzle'));
+        this.app.use(require('../routes/user'));
     }
 
     start(){
-        this.app.listen(process.env.PORT || 5000,()=>{
+        this.server.listen(process.env.PORT || 3000,()=>{
             console.log(`Server on port ${this.port}`);
         });
     }
