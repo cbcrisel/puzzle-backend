@@ -47,13 +47,16 @@ class Server{
             });
 
             client.on('selectedPiece',(data)=>{
-                console.log(data);
+                //console.log(data);
                 client.to('SALA X').emit('selectedPiece',data);
             });
 
             client.on('disconnect',()=>{
                 console.log('Cliente desconectado');
             });
+            client.on('configurar-usuario',(data)=>{
+                console.log('Configurando usuario: '+data.name);
+            })
         });      
     }
 

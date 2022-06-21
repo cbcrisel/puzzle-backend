@@ -8,8 +8,8 @@ const postUser = async(req=request,res=response) => {
     const {name,email,password,role}= req.body;
     const user = new User({name,email,password,role});
     //Encriptar en BD
-    const salt = bcrypt.genSaltSync();
-    user.password=bcrypt.hashSync(password,salt);
+    const salt = bcryptjs.genSaltSync();
+    user.password=bcryptjs.hashSync(password,salt);
    //Guardar en BD
     await user.save();    
     res.json({

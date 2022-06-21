@@ -19,7 +19,12 @@ const puzzleSchema= new Schema({
     },
     image:{
         type:String
-    }
+    },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
 });
 
 module.exports=model('Puzzle',puzzleSchema);

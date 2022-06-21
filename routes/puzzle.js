@@ -1,6 +1,7 @@
 const {Router} = require('express');
 const multer=require('multer');
 const { postPuzzle, getLastPuzzle } = require('../controllers/puzzle');
+const { validateJWT } = require('../helpers/jwt');
 
 
 const router=Router();
@@ -19,8 +20,8 @@ const storage = multer.diskStorage({
   
   const upload = multer({storage:storage});
 
-router.post('/api/puzzle',[upload.single('file')],postPuzzle);
-router.get('/api/lastPuzzle',getLastPuzzle);
+router.post('/api/puzzle',[upload.single('file'),validateJWT],postPuzzle);
+router.get('/api/lastPuzzle/:room',validateJWT,getLastPuzzle);
 
 
 module.exports=router;
