@@ -1,6 +1,10 @@
 const express=require('express');
 const cors=require('cors');
 const { dbConnection } = require('../database/config');
+const socketUsers = require('./socketUsers');
+const { ClientRequest } = require('http');
+
+
 
 class Server{
     constructor(){
@@ -34,6 +38,7 @@ class Server{
     }
 
     listenSockets(){
+        const connectedUsers= new socketUsers();
         this.io.on('connection',client=>{
             const handshake=client.id;
             //let {nameRoom}=client.handshake.query;
@@ -51,11 +56,29 @@ class Server{
                 client.to('SALA X').emit('selectedPiece',data);
             });
 
-            client.on('disconnect',()=>{
-                console.log('Cliente desconectado');
-            });
+            client.on('start',()=>{
+                console.log('startGame for everyone');
+                client.to('SALA X').emit('start');
+            })
+            
+            client.on('end',(data)=>{
+                console.log('FIN');
+                client.to('SALA X').emit('end',data)
+            })
+            
             client.on('configurar-usuario',(data)=>{
-                console.log('Configurando usuario: '+data.name);
+                
+                connectedUsers.addUser(data.name);
+                console.log(connectedUsers.users)
+                client.emit('usuarios-activos',connectedUsers.users)
+                client.on('disconnect',()=>{
+                
+                    console.log('Cliente desconectado');
+                    connectedUsers.deleteUser(data.name)
+                    client.emit('usuarios-activos',connectedUsers.users)
+                    console.log(connectedUsers.users)
+                    
+                });
             })
         });      
     }
